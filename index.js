@@ -13,6 +13,13 @@
  * (C) 2014, 2015 Rakuten NLP Project. All Rights Reserved.
  */
 
+// compatible with Node, Deno, and Bun
+import { readFileSync } from 'node:fs';
+
+const model_ja = function () {
+  const file = readFileSync('./model_ja.json', 'utf8');
+  return JSON.parse(file);
+};
 
 const RakutenMA = function (model, phi, c) {
     // constructor
@@ -836,4 +843,4 @@ RakutenMA.SCW = SCW;
 // if (typeof exports !== 'undefined')
 //     module.exports = RakutenMA;
 
-export { RakutenMA };
+export { RakutenMA, model_ja };
