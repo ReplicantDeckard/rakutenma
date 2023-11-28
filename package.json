@@ -1,8 +1,9 @@
 {
   "name": "rakutenma",
   "version": "1.0.0",
+  "type": "module",
   "description": "Rakuten MA - morphological analyzer (word segmentation + PoS Tagger) for Chinese and Japanese written purely in JavaScript.",
-  "main": "rakutenma.js",
+  "main": "index.js",
   "scripts": {
     "test": "jasmine-node spec"
   },
