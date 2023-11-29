@@ -17,7 +17,8 @@
 import { readFileSync } from 'node:fs';
 
 const model_ja = function () {
-  const file = readFileSync('model_ja.json', 'utf8');
+  // console.log(await import.meta.resolve('./model_ja.json'));
+  const file = readFileSync(new URL('./model_ja.json', import.meta.url), 'utf8');
   return JSON.parse(file);
 };
 
