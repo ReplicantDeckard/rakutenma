@@ -11,8 +11,7 @@
  * (C) 2014, 2015 Rakuten NLP Project. All Rights Reserved.
  */
 
-
-var RakutenMA = function (model, phi, c) {
+const RakutenMA = function (model, phi, c) {
     // constructor
     this.model = model || {};
 
@@ -37,11 +36,11 @@ RakutenMA.prototype.set_tag_scheme = function(scheme) {
 RakutenMA.string2hash = function(str) {
   // receives a string and returns a hash value for it
   // from http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
-  var hash = 0;
-  var i;
+  let hash = 0;
+  let i;
   if (str.length == 0) return hash;
   for (i = 0; i < str.length; i++) {
-    char = str.charCodeAt(i);
+    const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash; // Convert to 32bit integer
   }
@@ -51,7 +50,7 @@ RakutenMA.string2hash = function(str) {
 RakutenMA.create_hash_func = function(bits) {
   // creates and returns a feature hashing function
   // using the specified number of bits
-  var num_feats = Math.pow(2, bits);
+  const num_feats = Math.pow(2, bits);
   return function(arr) {
     return [(RakutenMA.string2hash(arr.join("_")) % num_feats) + num_feats - 1];
   }
@@ -60,7 +59,7 @@ RakutenMA.create_hash_func = function(bits) {
 RakutenMA.prototype.tokenize = function (input) {
     // tokenize input sentence (string)
 
-    var csent = this.str2csent(input);
+    const csent = this.str2csent(input);
     this.add_efeats(csent);
 
     this.decode(csent);
@@ -82,19 +81,19 @@ RakutenMA.prototype.add_efeats = function(csent) {
   // receives csent (character-sentence) structure
   // and adds the emission features to csent[i].f
 
-  var _empty_token = {c: "", t: ""};
-  var _t = function(i) { return (i >= 0 && i < csent.length) ?
+  const _empty_token = {c: "", t: ""};
+  const _t = function(i) { return (i >= 0 && i < csent.length) ?
                          csent[i] : _empty_token; };
 
   // for feature hashing
-  var _f = this.hash_func || function(x) { return x; };
+  const _f = this.hash_func || function(x) { return x; };
 
-  var add_ctype_feats = function(arr, label, ctype) {
+  const add_ctype_feats = function(arr, label, ctype) {
     // a helper function to add all the feature values of ctype to arr
     // if ctype is a string, simply adds it to arr,
     // if ctype is an array, adds all the elements to arr (used for Chinese tokenization)
 
-    var i;
+    let i;
     if (typeof(ctype) == "string") {
       arr.push(_f([label, ctype]));
     } else {
@@ -103,7 +102,7 @@ RakutenMA.prototype.add_efeats = function(csent) {
     }
   };
 
-  var i, j, feat;
+  let i, j, feat;
 
   for (i = 0; i < csent.length; i ++) {
 
@@ -161,8 +160,8 @@ RakutenMA.prototype.add_efeats = function(csent) {
 RakutenMA.prototype.csent2feats = function (csent) {
   // receives a csent and returns a set of features
   // (both transition and emission) for SCW update
-  var feats = [];
-  var i, j;
+  const feats = [];
+  let i, j;
   for (i = 0; i < csent.length; i ++) {
     for (j = 0; j < csent[i].f.length; j ++)
       feats.push(csent[i].f[j].concat([csent[i].l]));
@@ -178,14 +177,14 @@ RakutenMA.prototype.calc_states0 = function (cfeats, weights, e_def) {
   // cfeat:   set of feature values
   // weights: feature weights (trie)
   // e_def:   emission default distribution
-  var scores0 = {};
-  var states0 = {};
-  var j, k, s0;
+  const scores0 = {};
+  const states0 = {};
+  let j, k, s0;
 
   for (j in cfeats) {
 
     // console.log( "j = " + j + " cfeats[j] = " + cfeats[j]);
-    var cemits = Trie.find_partial(weights, cfeats[j]) || e_def;
+    const cemits = Trie.find_partial(weights, cfeats[j]) || e_def;
 
     // tag dictionary
     // the possible set of tags is solely defined by the first feature
@@ -209,24 +208,24 @@ RakutenMA.prototype.calc_states0 = function (cfeats, weights, e_def) {
 RakutenMA.prototype.decode = function (csent) {
   // decode csent (character-sentence) structure based on its features
   // using the Viterbi algorithm and assign lables to csent[i].l
-  var t_def = {};
+  const t_def = {};
   Trie.insert(t_def, [RakutenMA._DEF_LABEL, RakutenMA._DEF_LABEL], 1.0);
   Trie.insert(t_def, [RakutenMA._BEOS_LABEL, RakutenMA._DEF_LABEL], 0.1);
   Trie.insert(t_def, [RakutenMA._DEF_LABEL, RakutenMA._BEOS_LABEL], 0.1);
-  var e_def = {};
+  const e_def = {};
   Trie.insert(e_def, [RakutenMA._DEF_LABEL], 0.1);
   Trie.insert(e_def, [RakutenMA._BEOS_LABEL], 0.0);
 
-  var weights = this.model.mu || {};
-  var trans = weights.t || t_def;
+  const weights = this.model.mu || {};
+  const trans = weights.t || t_def;
 
-  var statesp = {}; statesp[RakutenMA._BEOS_LABEL] = {score: 0.0, path: [RakutenMA._BEOS_LABEL]};
+  let statesp = {}; statesp[RakutenMA._BEOS_LABEL] = {score: 0.0, path: [RakutenMA._BEOS_LABEL]};
 
-  var states0 = undefined;
+  let states0 = undefined;
 
-  var i, sp, s0;
-  var max_score, max_state, states0_score, trans0, score;
-  var final_path;
+  let i, sp, s0;
+  let max_score, max_state, states0_score, trans0, score, t_score;
+  let final_path;
 
   for (i = 1; i < csent.length; i ++) {
 
@@ -268,14 +267,14 @@ RakutenMA.prototype.decode = function (csent) {
 RakutenMA.prototype.train_one = function(sent) {
   // train the current model based on a new (single) instance
   // which is tsent (token-sentence)
-  var res = {};
+  const res = {};
 
-  var sent_str = "";
+  let sent_str = "";
 
-  var ans_csent, sys_csent;
-  var ans_feats, sys_feats;
-  var ans_trie, sys_trie;
-  var ans_tokens, sys_tokens;
+  let ans_csent, sys_csent;
+  let ans_feats, sys_feats;
+  let ans_trie, sys_trie;
+  let ans_tokens, sys_tokens;
 
   for (i in sent)
     sent_str += sent[i][0];
@@ -335,9 +334,9 @@ RakutenMA.prototype.str2csent = function (input) {
   // convert input string to a vector of chars (csent; character-sent)
   // add ctypes on the way
 
-  var csent = [{c: "", t: "", l: RakutenMA._BEOS_LABEL}]; // BOS
-  var _chars = input.split("");
-  var i;
+  const csent = [{c: "", t: "", l: RakutenMA._BEOS_LABEL}]; // BOS
+  const _chars = input.split("");
+  let i;
   for (i = 0; i < _chars.length; i ++) {
     csent.push({c: _chars[i], t: this.ctype_func(_chars[i])});
   }
@@ -350,8 +349,8 @@ RakutenMA.prototype.tokens2csent = function(tokens, scheme) {
   // convert a tsent(tokenized sentence) to the csent (character-sentence) structure
   // scheme should be either SBIEO or IOB2
 
-  var csent = [ {c: "", t: "", l: RakutenMA._BEOS_LABEL} ]; // BOS
-  var i, j, tag;
+  const csent = [ {c: "", t: "", l: RakutenMA._BEOS_LABEL} ]; // BOS
+  let i, j, tag;
 
   if (scheme == "SBIEO") {
     for (i = 0; i < tokens.length; i ++) {
@@ -388,7 +387,8 @@ RakutenMA.prototype.tokens2csent = function(tokens, scheme) {
 
 RakutenMA.tokens2string = function (tokens) {
   // convert tsent to a string representation
-  var ret = [], i;
+  const ret = [];
+  let i;
   for (i = 0; i < tokens.length; i ++)
       ret.push(tokens[i][0] + " [" + tokens[i][1] + "]");
   return ret.join(" | ");
@@ -407,7 +407,7 @@ var CTYPE_JA_PATTERNS = {
     "[・]": "n"
 };
 
-var i, regexp;
+let i, regexp;
 RakutenMA._ctype_ja_pats = [];
 for (i in CTYPE_JA_PATTERNS) {
   regexp = new RegExp();
@@ -420,7 +420,7 @@ RakutenMA._BEOS_LABEL = "_";  // label for BOS / EOS
 
 RakutenMA.ctype_ja_default_func = function (str) {
   // default character type function for Japanese
-  var i;
+  let i;
   for (i in RakutenMA._ctype_ja_pats) {
     if (str.match(RakutenMA._ctype_ja_pats[i][0])) {
       return RakutenMA._ctype_ja_pats[i][1];
@@ -443,10 +443,10 @@ RakutenMA.create_ctype_chardic_func = function(chardic) {
 
 RakutenMA.csent2tokens = function (csent, scheme) {
   // convert csent to tsent (mainly for final output and evaluation)
-  var tokens = [];
-  var ctoken = undefined;
-  var i;
-  var head, tail;
+  const tokens = [];
+  let ctoken = undefined;
+  let i;
+  let head, tail;
 
   if (scheme == "SBIEO") {
 
@@ -515,7 +515,7 @@ RakutenMA.csent2tokens = function (csent, scheme) {
 RakutenMA.tokens_identical = function (tokens1, tokens2) {
   // checks if tokens1 and tokens2 (both tsent) are identical
   // based on words and their labels
-  var i;
+  let i;
 
   if (tokens1.length != tokens2.length)
     return false;
@@ -530,9 +530,9 @@ RakutenMA.tokens_identical = function (tokens1, tokens2) {
 RakutenMA.tokenize_corpus = function (tokenize_func, corpus) {
   // given a corpus (test data), tokenizes all the sentences and returns the result
   // (mainly used for evaluation. see scripts/eval_ja.js and scripts/eval_zh.js)
-  var ret = [];
-  var i, j;
-  var sent, sent_str;
+  const ret = [];
+  let i, j;
+  let sent, sent_str;
 
   for (i in corpus) {
     sent = corpus[i];
@@ -546,8 +546,8 @@ RakutenMA.tokenize_corpus = function (tokenize_func, corpus) {
 
 RakutenMA.eval_corpus = function (corpus_ans, corpus_sys) {
   // evaluates the corpus and computes precision, recall, and F measure
-  var tps = 0, tokens_ans = 0, tokens_sys = 0;
-  var i;
+  let tps = 0, tokens_ans = 0, tokens_sys = 0;
+  let i;
 
   if (corpus_ans.length != corpus_sys.length)
     throw "Corpus sizes are not the same!";
@@ -567,18 +567,18 @@ RakutenMA.count_tps = function(ans, sys) {
   // compare tsent (ans) and tsent (sys)
   // and return the number of token-based true positives
 
-  var token2str = function(token) {
+  const token2str = function(token) {
     if (typeof token === 'string')
       return token;
     else
       return token[0];
   };
 
-  var min_sent, max_sent;
-  var offset = 0;
-  var max_set = {};
-  var i;
-  var token_str;
+  let min_sent, max_sent;
+  let offset = 0;
+  const max_set = {};
+  let i;
+  let token_str;
 
   if (ans.length < sys.length) {
     min_sent = ans; max_sent = sys;
@@ -604,10 +604,10 @@ RakutenMA.count_tps = function(ans, sys) {
 };
 
 // Trie static functions
-var Trie = {};
+const Trie = {};
 
 Trie.find = function(trie, key, depth) {
-  var node;
+  let node;
 
   if (!depth) depth = 0;
 
@@ -623,7 +623,7 @@ Trie.find = function(trie, key, depth) {
 };
 
 Trie.find_partial = function(trie, key, depth) {
-  var node;
+  let node;
 
   if (!depth) depth = 0;
 
@@ -639,7 +639,7 @@ Trie.find_partial = function(trie, key, depth) {
 };
 
 Trie.insert = function(trie, key, val, depth) {
-  var node;
+  let node;
 
   if (!depth) depth = 0;
 
@@ -652,9 +652,9 @@ Trie.insert = function(trie, key, val, depth) {
 };
 
 Trie.inner_prod = function(trie1, trie2) {
-  var res = 0.0;
-  var node;
-  var key;
+  let res = 0.0;
+  let node;
+  let key;
 
   if (trie1.v && trie2.v)
     res += trie1.v * trie2.v;
@@ -671,7 +671,7 @@ Trie.add_coef = function(trie1, trie2, coef, def) {
   // calc trie1 + trie2 * coef
   // def = default value
 
-  var key, node;
+  let key, node;
   def = def || 0.0;
 
   if (trie2.v) {
@@ -688,7 +688,7 @@ Trie.add_coef = function(trie1, trie2, coef, def) {
 Trie.mult = function(trie1, trie2) {
   // calc trie1 * trie 2 (element wise multiplication)
 
-  var key;
+  let key;
   if (trie1.v && trie2.v)
     trie1.v *= trie2.v;
 
@@ -701,7 +701,8 @@ Trie.mult = function(trie1, trie2) {
 
 Trie.copy = function(trie) {
   // make a deep copy of trie
-  var new_trie = {}, key;
+  const new_trie = {};
+  let key;
   for (key in trie) {
     if (key == "v")
       new_trie.v = trie.v;
@@ -712,8 +713,8 @@ Trie.copy = function(trie) {
 };
 
 Trie.toString = function(trie, path) {
-  var key;
-  var res = "";
+  let key;
+  let res = "";
   if (!path) path = [];
   for (key in trie) {
     if (key == "v")
@@ -727,7 +728,7 @@ Trie.toString = function(trie, path) {
 Trie.each = function(trie, callback, path) {
   // calls the callback function (with two arguments)
   // for each pair of [key, value] in this trie
-  var key;
+  let key;
 
   if (!path) path = [];
   for (key in trie) {
@@ -742,7 +743,7 @@ RakutenMA.Trie = Trie;
 
 // Soft Confidence Weighted (SCW)
 
-var SCW = function(phi, c) {
+const SCW = function(phi, c) {
   this.phi = phi;
   this.c = c;
 
@@ -759,28 +760,29 @@ SCW.prototype.calc_margin = function(x, y) {
 };
 
 SCW.prototype.calc_variance = function(x) {
-  var ret = Trie.copy(x);
+  const ret = Trie.copy(x);
   Trie.mult(ret, this.sigma);
   return Trie.inner_prod(ret, x);
 };
 
 SCW.prototype.calc_alpha = function(margin, variance) {
-  var term1 = margin * this.phi / 2;
-  var alpha_denom = variance * this.zeta;
-  var alpha = (-1 * margin * this.psi + this.phi * Math.sqrt(term1 * term1 + alpha_denom)) / alpha_denom;
+  const term1 = margin * this.phi / 2;
+  const alpha_denom = variance * this.zeta;
+  const alpha = (-1 * margin * this.psi + this.phi * Math.sqrt(term1 * term1 + alpha_denom)) / alpha_denom;
   if (alpha < 0) return 0.0;
   return (alpha < this.c) ? alpha : this.c;
 };
 
 SCW.prototype.calc_beta = function(margin, variance, alpha) {
-  var beta_numer = alpha * this.phi;
-  var term1 = beta_numer * variance;
-  var beta_denom = (-1 * term1 + Math.sqrt(term1 * term1 + 4 * variance)) / 2 + term1;
+  const beta_numer = alpha * this.phi;
+  const term1 = beta_numer * variance;
+  const beta_denom = (-1 * term1 + Math.sqrt(term1 * term1 + 4 * variance)) / 2 + term1;
   return beta_numer / beta_denom;
 };
 
 SCW.prototype.update_mu_sigma = function(x, y, alpha, beta) {
-  var x_sigma = Trie.copy(x), x_sigma2;
+  const x_sigma = Trie.copy(x);
+  let x_sigma2;
 
   Trie.mult(x_sigma, this.sigma);
   x_sigma2 = Trie.copy(x_sigma);
@@ -791,21 +793,21 @@ SCW.prototype.update_mu_sigma = function(x, y, alpha, beta) {
 };
 
 SCW.prototype.update = function(x, y) {
-  var margin   = this.calc_margin(x, y);
-  var variance = this.calc_variance(x);
-  var alpha    = this.calc_alpha(margin, variance);
-  var beta     = this.calc_beta(margin, variance, alpha);
+  const margin   = this.calc_margin(x, y);
+  const variance = this.calc_variance(x);
+  const alpha    = this.calc_alpha(margin, variance);
+  const beta     = this.calc_beta(margin, variance, alpha);
   this.update_mu_sigma(x, y, alpha, beta);
 };
 
 // Feature selection by L1 regularization (FOBOS)
 SCW.prototype.prune = function(lambda, sigma_th) {
-  var new_mu = {};
-  var new_sigma = {};
-  var old_sigma = this.sigma;
+  const new_mu = {};
+  const new_sigma = {};
+  const old_sigma = this.sigma;
 
   Trie.each(this.mu, function(key, mu_val) {
-      var sigma_val = Trie.find(old_sigma, key);
+      const sigma_val = Trie.find(old_sigma, key);
 
       if (mu_val < -lambda) {
         Trie.insert(new_mu, key, mu_val + lambda);
@@ -828,5 +830,7 @@ SCW.prototype.prune = function(lambda, sigma_th) {
 RakutenMA.SCW = SCW;
 
 // for node.js library export
-if (typeof exports !== 'undefined')
-    module.exports = RakutenMA;
+// if (typeof exports !== 'undefined')
+//     module.exports = RakutenMA;
+
+export { RakutenMA };
