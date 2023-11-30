@@ -3,11 +3,12 @@
     Run with Bun.
 */
 
-import { RakutenMA, model_ja } from "./index.js";
-// import model from "./model_ja.json";
+import { RakutenMA, loadModel, rakutenma } from "./index.js";
 
-const rma = new RakutenMA(model_ja());
-rma.featset = RakutenMA.default_featset_ja;
-rma.hash_func = RakutenMA.create_hash_func(15);
+// const rma = new RakutenMA(loadModel("ja"));
+// rma.featset = RakutenMA.default_featset_ja;
+// rma.hash_func = RakutenMA.create_hash_func(15);
 
-console.log(rma.tokenize("たむちゃん　はちゃっきーさんに全く惚れちゃったよ。"));
+const rma = rakutenma();
+
+console.log(rma.tokenize("たむちゃんはちゃっきーさんに全く惚れちゃったよ。"));
