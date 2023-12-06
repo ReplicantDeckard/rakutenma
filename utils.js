@@ -11,4 +11,4 @@ import { RakutenMA, loadModel, rakutenma } from "./index.js";
 
 const rma = rakutenma();
 
-console.log(rma.tokenize("たむちゃんはちゃっきーさんに全く惚れちゃったよ。"));
+console.log(await rma.tokenize("たむちゃんはちゃっきーさんに全く惚れちゃったよ。"));

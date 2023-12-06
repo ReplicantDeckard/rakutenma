@@ -56,7 +56,7 @@ RakutenMA.create_hash_func = function(bits) {
   }
 };
 
-RakutenMA.prototype.tokenize = function (input) {
+RakutenMA.prototype.tokenize = async function (input) {
     // tokenize input sentence (string)
 
     const csent = this.str2csent(input);
